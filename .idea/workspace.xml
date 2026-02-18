@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="181756e2-76f4-40de-bb15-4295a1e8733d" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/app/(auth)/login/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/layout.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/mlt/all-worklist/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/mlt/instruments/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/mlt/qc-dashboard/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/mlt/result-entry/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/mlt/worklist/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/phlebotomy/collection-history/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/phlebotomy/label-reprint/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/phlebotomy/supplies/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/phlebotomy/worklist/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/reception/accessioning/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/reception/barcode-reprint/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/reception/logs/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/(dashboard)/reception/quality-verification/page.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/layout/Sidebar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/layout/TopNav.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/CriticalAlertBanner.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/InstrumentStatus.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/MLTFilterBar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/MLTStatCards.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/MLTWorklistRow.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/ResultFlagBadge.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/ResultParameterRow.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/mlt/ResultSampleSidebar.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/phlebotomy/RejectSampleModal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/phlebotomy/WorklistFilters.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/phlebotomy/WorklistRow.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/reception/AccessioningRow.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/reception/ReceptionRejectModal.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/reception/SampleInfoPanel.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/reception/VerificationChecklist.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/shared/Pagination.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/shared/PriorityBadge.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/shared/ShiftProgress.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/shared/StatCard.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/shared/StatusBadge.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/components/shared/TubeIndicator.tsx" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/api/axios.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/auth/mock-session.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mock/barcode.mock.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mock/mlt.mock.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mock/phlebotomy.mock.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mock/quality.mock.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mock/reception.mock.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/mock/result-entry.mock.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/types/dashboard.types.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/types/sample.types.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/globals.css" beforeDir="false" afterPath="$PROJECT_DIR$/app/globals.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/app/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tailwind.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/tailwind.config.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/tailwind.config.ts" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="ProjectErrors" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="39puIU9AyECsh57eZVHZ8mIOSGY" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;javascript.preferred.runtime.type.id&quot;: &quot;node&quot;,
+    &quot;js.debugger.nextJs.config.created.client&quot;: &quot;true&quot;,
+    &quot;js.debugger.nextJs.config.created.server&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Sithu/Videos/3rd Semester/IS2901 - Software Development Project/durdans-lims-frontend&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;ts.external.directory.path&quot;: &quot;C:\\Users\\Sithu\\Videos\\3rd Semester\\IS2901 - Software Development Project\\durdans-lims-frontend\\node_modules\\typescript\\lib&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RunManager" selected="npm.Next.js: server-side">
+    <configuration name="Next.js: debug client-side" type="JavascriptDebugType" uri="http://localhost:3000/">
+      <method v="2" />
+    </configuration>
+    <configuration name="Next.js: server-side" type="js.build_tools.npm">
+      <package-json value="$PROJECT_DIR$/package.json" />
+      <command value="run" />
+      <scripts>
+        <script value="dev" />
+      </scripts>
+      <node-interpreter value="project" />
+      <envs />
+      <method v="2" />
+    </configuration>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-9b0f141eb926-JavaScript-WS-253.30387.83" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="181756e2-76f4-40de-bb15-4295a1e8733d" name="Changes" comment="" />
+      <created>1771405256583</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1771405256583</updated>
+      <workItem from="1771405259903" duration="8283000" />
+      <workItem from="1771430058098" duration="1010000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>

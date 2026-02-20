@@ -167,7 +167,7 @@ export default function RejectSampleModal({
                         <span className="text-amber-500 text-sm mt-0.5">ℹ️</span>
                         <p className="text-xs text-amber-800">
                             Submitting this rejection will flag the order status as{" "}
-                            <strong className="text-amber-900">'Re-collection Required'</strong>.
+                            <strong className="text-amber-900">&apos;Re-collection Required&apos;</strong>
                             This action is recorded in the audit log.
                         </p>
                     </div>

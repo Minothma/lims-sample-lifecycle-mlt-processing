@@ -3,7 +3,6 @@
 
 import { Search, Filter, SlidersHorizontal } from "lucide-react";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
 
 interface WorklistFiltersProps {
     onSearch: (query: string) => void;

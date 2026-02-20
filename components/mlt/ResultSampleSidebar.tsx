@@ -1,7 +1,6 @@
 "use client";
 
 // components/mlt/ResultSampleSidebar.tsx
-
 import type { ResultEntrySample } from "@/mock/result-entry.mock";
 
 interface ResultSampleSidebarProps {

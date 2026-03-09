@@ -52,15 +52,15 @@ export function computeFlag(
 }
 
 export const MOCK_RESULT_ENTRY: ResultEntrySample = {
-    sampleId:       "SAPP-2025-9912",
+    sampleId:       "S-90241",
     patientName:    "Kamala Jayasinghe",
-    patientId:      "DH-982384",
+    patientId:      "DH-39105",
     age:            54,
     gender:         "Female",
     wardRoom:       "ICU — Bed 04",
-    collectionDate: "Oct 24, 2023",
+    collectionDate: "Feb 26, 2026",
     collectionTime: "08:45 AM",
-    validatedAt:    "Oct 24, 2023 | 09:12 AM",
+    validatedAt:    "Feb 26, 2026 | 09:12 AM",
     activeCaseNote: "Stat request from ICU. Requires immediate validation.",
     testGroups: [
         {

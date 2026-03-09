@@ -91,7 +91,7 @@ export default function ReceptionAccessioningPage() {
                     </p>
                 </div>
                 <div className="flex items-center gap-2 text-xs text-gray-400">
-                    <span>📅 Oct 24, 2023</span>
+                    <span>📅 {new Date().toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}</span>
                     <button
                         onClick={() => window.location.reload()}
                         className="p-1.5 rounded-md hover:bg-gray-100 text-gray-400
@@ -109,32 +109,24 @@ export default function ReceptionAccessioningPage() {
                     value={MOCK_RECEPTION_STATS.samplesPending}
                     icon={ClipboardList}
                     color="blue"
-                    badge="+10% vs last hr"
-                    badgeColor="blue"
                 />
                 <StatCard
                     label="Urgent Samples"
                     value={MOCK_RECEPTION_STATS.urgentSamples}
                     icon={AlertCircle}
                     color="orange"
-                    badge="Action needed"
-                    badgeColor="orange"
                 />
                 <StatCard
                     label="Accepted Today"
                     value={MOCK_RECEPTION_STATS.acceptedToday}
                     icon={CheckCircle2}
                     color="green"
-                    badge="Shift Target: 80%"
-                    badgeColor="green"
                 />
                 <StatCard
                     label="Rejection Rate"
                     value={MOCK_RECEPTION_STATS.rejectionRate}
                     icon={XCircle}
                     color="red"
-                    badge="-0.4% improvement"
-                    badgeColor="red"
                 />
             </div>
 

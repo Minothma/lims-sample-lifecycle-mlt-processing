@@ -1,11 +1,12 @@
 "use client";
 
 // app/(dashboard)/mlt/instruments/page.tsx
-import { Microscope, Wifi, WifiOff, RefreshCw } from "lucide-react";
+import { useState } from "react";
+import { Microscope, Wifi, WifiOff, RefreshCw, Download, Loader2, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-const INSTRUMENTS = [
+const INITIAL_INSTRUMENTS = [
     {
         id: "i1", name: "Sysmex XN-1000",
         type: "Haematology Analyser",
@@ -48,6 +49,14 @@ const INSTRUMENTS = [
     },
 ];
 
+// Mock import result counts per instrument
+const IMPORT_COUNTS: Record<string, number> = {
+    i1: 12,
+    i2: 8,
+    i3: 0,
+    i4: 5,
+};
+
 const STATUS_CONFIG = {
     online:  { label: "ONLINE",  dot: "bg-green-500 animate-pulse", badge: "bg-green-100 text-green-700" },
     offline: { label: "OFFLINE", dot: "bg-red-500",                 badge: "bg-red-100 text-red-700" },
@@ -55,9 +64,93 @@ const STATUS_CONFIG = {
 };
 
 export default function InstrumentsPage() {
-    const online  = INSTRUMENTS.filter((i) => i.status === "online").length;
-    const offline = INSTRUMENTS.filter((i) => i.status === "offline").length;
-    const busy    = INSTRUMENTS.filter((i) => i.status === "busy").length;
+    const [instruments,    setInstruments]    = useState(INITIAL_INSTRUMENTS);
+    const [syncing,        setSyncing]        = useState<Record<string, boolean>>({});
+    const [importing,      setImporting]      = useState<Record<string, boolean>>({});
+    const [justSynced,     setJustSynced]     = useState<Record<string, boolean>>({});
+    const [justImported,   setJustImported]   = useState<Record<string, number | null>>({});
+    const [reconnecting,   setReconnecting]   = useState<Record<string, boolean>>({});
+    const [refreshing,     setRefreshing]     = useState(false);
+
+    const online  = instruments.filter((i) => i.status === "online").length;
+    const offline = instruments.filter((i) => i.status === "offline").length;
+    const busy    = instruments.filter((i) => i.status === "busy").length;
+
+    // ── Sync Now ─────────────────────────────────────────────────
+    const handleSync = async (id: string, name: string) => {
+        setSyncing((prev) => ({ ...prev, [id]: true }));
+        setJustSynced((prev) => ({ ...prev, [id]: false }));
+
+        await new Promise((r) => setTimeout(r, 1500));
+
+        // Update last sync time
+        setInstruments((prev) =>
+            prev.map((inst) =>
+                inst.id === id ? { ...inst, lastSync: "Just now" } : inst
+            )
+        );
+
+        setSyncing((prev)    => ({ ...prev, [id]: false }));
+        setJustSynced((prev) => ({ ...prev, [id]: true }));
+
+        toast.success(`${name} synced successfully`, {
+            description: "Last sync updated to just now",
+        });
+
+        // Reset synced badge after 5 seconds
+        setTimeout(() => setJustSynced((prev) => ({ ...prev, [id]: false })), 5000);
+    };
+
+    // ── Import Results ────────────────────────────────────────────
+    const handleImport = async (id: string, name: string) => {
+        setImporting((prev)     => ({ ...prev, [id]: true }));
+        setJustImported((prev)  => ({ ...prev, [id]: null }));
+
+        await new Promise((r) => setTimeout(r, 2000));
+
+        const count = IMPORT_COUNTS[id] ?? 0;
+
+        // Update tests today count
+        setInstruments((prev) =>
+            prev.map((inst) =>
+                inst.id === id
+                    ? { ...inst, testsToday: inst.testsToday + count }
+                    : inst
+            )
+        );
+
+        setImporting((prev)    => ({ ...prev, [id]: false }));
+        setJustImported((prev) => ({ ...prev, [id]: count }));
+
+        toast.success(`Results imported from ${name}`, {
+            description: `${count} pending result${count !== 1 ? "s" : ""} imported into LIMS`,
+        });
+
+        // Reset imported badge after 6 seconds
+        setTimeout(() => setJustImported((prev) => ({ ...prev, [id]: null })), 6000);
+    };
+
+    // ── Reconnect ─────────────────────────────────────────────────
+    const handleReconnect = async (id: string, name: string) => {
+        setReconnecting((prev) => ({ ...prev, [id]: true }));
+
+        await new Promise((r) => setTimeout(r, 2500));
+
+        setReconnecting((prev) => ({ ...prev, [id]: false }));
+
+        // Simulate failed reconnection (offline instrument stays offline)
+        toast.error(`Could not reconnect to ${name}`, {
+            description: "Device unreachable. Please check network cable and power.",
+        });
+    };
+
+    // ── Refresh All ───────────────────────────────────────────────
+    const handleRefreshAll = async () => {
+        setRefreshing(true);
+        await new Promise((r) => setTimeout(r, 1200));
+        setRefreshing(false);
+        toast.success("All instrument statuses refreshed");
+    };
 
     return (
         <div className="space-y-5">
@@ -71,13 +164,17 @@ export default function InstrumentsPage() {
                     </p>
                 </div>
                 <button
-                    onClick={() => toast.success("Instrument status refreshed")}
+                    onClick={handleRefreshAll}
+                    disabled={refreshing}
                     className="flex items-center gap-1.5 px-3 py-2 border border-gray-200
                      rounded-lg bg-white text-sm text-gray-600
-                     hover:bg-gray-50 transition-all"
+                     hover:bg-gray-50 transition-all disabled:opacity-50"
                 >
-                    <RefreshCw className="w-3.5 h-3.5" />
-                    Refresh Status
+                    {refreshing
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : <RefreshCw className="w-3.5 h-3.5" />
+                    }
+                    {refreshing ? "Refreshing..." : "Refresh Status"}
                 </button>
             </div>
 
@@ -88,9 +185,7 @@ export default function InstrumentsPage() {
                     { label: "Busy",    value: busy,    color: "text-amber-600 bg-amber-50 border-amber-200" },
                     { label: "Offline", value: offline, color: "text-red-600 bg-red-50 border-red-200" },
                 ].map(({ label, value, color }) => (
-                    <div key={label} className={cn(
-                        "rounded-lg border p-4 text-center", color
-                    )}>
+                    <div key={label} className={cn("rounded-lg border p-4 text-center", color)}>
                         <p className="text-2xl font-bold">{value}</p>
                         <p className="text-xs font-semibold uppercase tracking-wider mt-0.5">
                             {label}
@@ -101,16 +196,20 @@ export default function InstrumentsPage() {
 
             {/* ── Instrument Cards ── */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {INSTRUMENTS.map((inst) => {
-                    const cfg = STATUS_CONFIG[inst.status];
+                {instruments.map((inst) => {
+                    const cfg          = STATUS_CONFIG[inst.status];
+                    const isSyncing    = syncing[inst.id]    ?? false;
+                    const isImporting  = importing[inst.id]  ?? false;
+                    const isReconnect  = reconnecting[inst.id] ?? false;
+                    const syncedDone   = justSynced[inst.id]  ?? false;
+                    const importedCount = justImported[inst.id] ?? null;
+
                     return (
                         <div
                             key={inst.id}
                             className={cn(
                                 "bg-white rounded-xl border shadow-sm overflow-hidden",
-                                inst.status === "offline"
-                                    ? "border-red-200"
-                                    : "border-gray-200"
+                                inst.status === "offline" ? "border-red-200" : "border-gray-200"
                             )}
                         >
                             {/* Card Header */}
@@ -134,35 +233,32 @@ export default function InstrumentsPage() {
                                     "flex items-center gap-1.5 px-2.5 py-1 rounded-full",
                                     "text-[10px] font-bold", cfg.badge
                                 )}>
-                  <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
+                                    <span className={cn("w-1.5 h-1.5 rounded-full", cfg.dot)} />
                                     {cfg.label}
-                </span>
+                                </span>
                             </div>
 
                             {/* Card Body */}
                             <div className="p-5 grid grid-cols-2 gap-4">
                                 {[
-                                    { label: "Model",        value: inst.model },
-                                    { label: "Serial No.",   value: inst.serial },
-                                    { label: "Location",     value: inst.location },
-                                    { label: "Last Sync",    value: inst.lastSync },
-                                    { label: "Tests Today",  value: inst.testsToday.toString() },
-                                    { label: "QC Status",    value: inst.qcStatus },
+                                    { label: "Model",       value: inst.model },
+                                    { label: "Serial No.",  value: inst.serial },
+                                    { label: "Location",    value: inst.location },
+                                    { label: "Last Sync",   value: inst.lastSync },
+                                    { label: "Tests Today", value: inst.testsToday.toString() },
+                                    { label: "QC Status",   value: inst.qcStatus },
                                 ].map(({ label, value }) => (
                                     <div key={label}>
-                                        <p className="text-[9px] font-bold uppercase tracking-wider
-                                   text-gray-400">
+                                        <p className="text-[9px] font-bold uppercase tracking-wider text-gray-400">
                                             {label}
                                         </p>
                                         <p className={cn(
                                             "text-xs font-semibold mt-0.5",
-                                            label === "QC Status" && value === "FAIL"
-                                                ? "text-red-600"
-                                                : label === "QC Status" && value === "WARN"
-                                                    ? "text-amber-600"
-                                                    : label === "QC Status" && value === "PASS"
-                                                        ? "text-green-600"
-                                                        : "text-gray-800"
+                                            label === "QC Status" && value === "FAIL" ? "text-red-600"   :
+                                                label === "QC Status" && value === "WARN" ? "text-amber-600" :
+                                                    label === "QC Status" && value === "PASS" ? "text-green-600" :
+                                                        label === "Last Sync"  && value === "Just now" ? "text-green-600" :
+                                                            "text-gray-800"
                                         )}>
                                             {value}
                                         </p>
@@ -170,37 +266,88 @@ export default function InstrumentsPage() {
                                 ))}
                             </div>
 
+                            {/* ── Import result count badge ── */}
+                            {importedCount !== null && (
+                                <div className="mx-5 mb-3 flex items-center gap-2 px-3 py-2
+                                        bg-blue-50 border border-blue-200 rounded-lg">
+                                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+                                    <p className="text-xs text-blue-700 font-medium">
+                                        {importedCount} result{importedCount !== 1 ? "s" : ""} imported
+                                        into LIMS successfully
+                                    </p>
+                                </div>
+                            )}
+
                             {/* Action footer */}
                             <div className="px-5 py-3 border-t border-gray-100 flex gap-2">
                                 {inst.status === "online" || inst.status === "busy" ? (
                                     <>
+                                        {/* Sync Now */}
                                         <button
-                                            onClick={() => toast.success(`${inst.name} synced`)}
-                                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs
-                                 font-semibold bg-blue-600 hover:bg-blue-700
-                                 text-white rounded-md transition-all"
+                                            onClick={() => handleSync(inst.id, inst.name)}
+                                            disabled={isSyncing}
+                                            className={cn(
+                                                "flex items-center gap-1.5 px-3 py-1.5 text-xs",
+                                                "font-semibold rounded-md transition-all",
+                                                syncedDone
+                                                    ? "bg-green-600 hover:bg-green-700 text-white"
+                                                    : "bg-blue-600 hover:bg-blue-700 text-white",
+                                                isSyncing && "opacity-70 cursor-wait"
+                                            )}
                                         >
-                                            <Wifi className="w-3 h-3" />
-                                            Sync Now
+                                            {isSyncing
+                                                ? <Loader2 className="w-3 h-3 animate-spin" />
+                                                : syncedDone
+                                                    ? <CheckCircle2 className="w-3 h-3" />
+                                                    : <Wifi className="w-3 h-3" />
+                                            }
+                                            {isSyncing ? "Syncing..." : syncedDone ? "Synced!" : "Sync Now"}
                                         </button>
+
+                                        {/* Import Results */}
                                         <button
-                                            onClick={() => toast.info(`${inst.name} test import started`)}
-                                            className="px-3 py-1.5 text-xs font-semibold border
-                                 border-gray-200 text-gray-600 hover:bg-gray-50
-                                 rounded-md transition-all"
+                                            onClick={() => handleImport(inst.id, inst.name)}
+                                            disabled={isImporting}
+                                            className={cn(
+                                                "flex items-center gap-1.5 px-3 py-1.5 text-xs",
+                                                "font-semibold border rounded-md transition-all",
+                                                importedCount !== null
+                                                    ? "border-green-200 bg-green-50 text-green-700"
+                                                    : "border-gray-200 text-gray-600 hover:bg-gray-50",
+                                                isImporting && "opacity-70 cursor-wait"
+                                            )}
                                         >
-                                            Import Results
+                                            {isImporting
+                                                ? <Loader2 className="w-3 h-3 animate-spin" />
+                                                : importedCount !== null
+                                                    ? <CheckCircle2 className="w-3 h-3" />
+                                                    : <Download className="w-3 h-3" />
+                                            }
+                                            {isImporting
+                                                ? "Importing..."
+                                                : importedCount !== null
+                                                    ? `${importedCount} Imported`
+                                                    : "Import Results"
+                                            }
                                         </button>
                                     </>
                                 ) : (
+                                    /* Reconnect */
                                     <button
-                                        onClick={() => toast.error(`${inst.name} is offline`)}
-                                        className="flex items-center gap-1.5 px-3 py-1.5 text-xs
-                               font-semibold border border-red-200 text-red-600
-                               hover:bg-red-50 rounded-md transition-all"
+                                        onClick={() => handleReconnect(inst.id, inst.name)}
+                                        disabled={isReconnect}
+                                        className={cn(
+                                            "flex items-center gap-1.5 px-3 py-1.5 text-xs",
+                                            "font-semibold border border-red-200 text-red-600",
+                                            "hover:bg-red-50 rounded-md transition-all",
+                                            isReconnect && "opacity-70 cursor-wait"
+                                        )}
                                     >
-                                        <WifiOff className="w-3 h-3" />
-                                        Reconnect
+                                        {isReconnect
+                                            ? <Loader2 className="w-3 h-3 animate-spin" />
+                                            : <WifiOff className="w-3 h-3" />
+                                        }
+                                        {isReconnect ? "Connecting..." : "Reconnect"}
                                     </button>
                                 )}
                             </div>

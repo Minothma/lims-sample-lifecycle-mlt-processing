@@ -3,11 +3,13 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import MLTStatCards   from "@/components/mlt/MLTStatCards";
-import MLTFilterBar   from "@/components/mlt/MLTFilterBar";
-import MLTWorklistRow from "@/components/mlt/MLTWorklistRow";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import MLTStatCards     from "@/components/mlt/MLTStatCards";
+import MLTFilterBar     from "@/components/mlt/MLTFilterBar";
+import MLTWorklistRow   from "@/components/mlt/MLTWorklistRow";
 import InstrumentStatus from "@/components/mlt/InstrumentStatus";
-import Pagination     from "@/components/shared/Pagination";
+import Pagination       from "@/components/shared/Pagination";
 import {
     MOCK_MLT_WORKLIST,
     MOCK_MLT_STATS,
@@ -29,12 +31,12 @@ const TABLE_COLUMNS = [
 export default function MLTWorklistPage() {
     const router = useRouter();
 
-    const [searchQuery,  setSearchQuery]  = useState("");
-    const [department,   setDepartment]   = useState("All Departments");
-    const [testType,     setTestType]     = useState("All Test Types");
-    const [currentPage,  setCurrentPage]  = useState(1);
+    const [searchQuery, setSearchQuery] = useState("");
+    const [department,  setDepartment]  = useState("All Departments");
+    const [testType,    setTestType]    = useState("All Test Types");
+    const [currentPage, setCurrentPage] = useState(1);
 
-    // ── Filter logic ────────────────────────────────────────────
+    // ── Filter logic ─────────────────────────────────────────────
     const filtered = useMemo(() => {
         return MOCK_MLT_WORKLIST.filter((s) => {
             const q = searchQuery.toLowerCase();
@@ -61,16 +63,71 @@ export default function MLTWorklistPage() {
         currentPage * PAGE_SIZE
     );
 
-    const handleSearch     = (q: string) => { setSearchQuery(q);  setCurrentPage(1); };
-    const handleDepartment = (d: string) => { setDepartment(d);   setCurrentPage(1); };
-    const handleTestType   = (t: string) => { setTestType(t);     setCurrentPage(1); };
+    const handleSearch     = (q: string) => { setSearchQuery(q); setCurrentPage(1); };
+    const handleDepartment = (d: string) => { setDepartment(d);  setCurrentPage(1); };
+    const handleTestType   = (t: string) => { setTestType(t);    setCurrentPage(1); };
 
+    // ── Start Testing — passes sampleId via URL ───────────────────
     const handleStartTesting = (id: string) => {
         const sample = MOCK_MLT_WORKLIST.find((s) => s.id === id);
-        toast.success("Testing started", {
-            description: `${sample?.sampleId} — ${sample?.testType}`,
+        if (sample) {
+            router.push(`/mlt/result-entry?sampleId=${sample.sampleId}`);
+        }
+    };
+
+    // ── New Test Entry — blank form ───────────────────────────────
+    const handleNewEntry = () => {
+        router.push("/mlt/result-entry?new=true");
+    };
+
+    // ── Print Batch — exports current page as PDF ─────────────────
+    const handlePrintBatch = () => {
+        if (paginated.length === 0) {
+            toast.error("No samples to print");
+            return;
+        }
+
+        const doc = new jsPDF();
+
+        // Title
+        doc.setFontSize(16);
+        doc.setTextColor(30, 64, 175);
+        doc.text("Durdans Hospital — MLT Sample Worklist", 14, 18);
+
+        // Subtitle
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+        doc.text(
+            `Printed on: ${new Date().toLocaleDateString("en-GB", {
+                day: "numeric", month: "short", year: "numeric",
+            })}   |   Showing ${paginated.length} samples`,
+            14, 26
+        );
+
+        // Table
+        autoTable(doc, {
+            startY: 32,
+            head: [["Sample ID", "Patient", "Department", "Test Type", "Priority", "Received"]],
+            body: paginated.map((s) => [
+                s.sampleId,
+                `${s.patient.name} (${s.patient.pid})`,
+                s.department,
+                s.testType,
+                s.priority,
+                s.receivedTime,
+            ]),
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [30, 64, 175] },
+            didParseCell: (data) => {
+                const row = paginated[data.row.index];
+                if (data.section === "body" && row?.priority === "URGENT") {
+                    data.cell.styles.fillColor = [254, 226, 226];
+                }
+            },
         });
-        router.push("/mlt/result-entry");
+
+        doc.save(`mlt-worklist-batch-${new Date().toISOString().slice(0, 10)}.pdf`);
+        toast.success("Batch PDF exported successfully");
     };
 
     return (
@@ -113,8 +170,8 @@ export default function MLTWorklistPage() {
                             onDepartment={handleDepartment}
                             onTestType={handleTestType}
                             mode="worklist"
-                            onPrintBatch={() => toast.info("Print batch queued")}
-                            onNewEntry={() => router.push("/mlt/result-entry")}
+                            onPrintBatch={handlePrintBatch}
+                            onNewEntry={handleNewEntry}
                         />
                     </div>
 

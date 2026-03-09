@@ -98,24 +98,18 @@ export default function PhlebotomyWorklistPage() {
                     value={MOCK_DASHBOARD_STATS.urgentSamples}
                     icon={AlertCircle}
                     color="orange"
-                    badge="Action needed"
-                    badgeColor="orange"
                 />
                 <StatCard
                     label="Collected Today"
                     value={MOCK_DASHBOARD_STATS.collectedToday}
                     icon={CheckCircle2}
                     color="green"
-                    badge="Shift Target: 80%"
-                    badgeColor="green"
                 />
                 <StatCard
                     label="Rejections"
                     value={MOCK_DASHBOARD_STATS.rejections}
                     icon={XCircle}
                     color="red"
-                    badge="-0.4% improvement"
-                    badgeColor="red"
                 />
             </div>
 

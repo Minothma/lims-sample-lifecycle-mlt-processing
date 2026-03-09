@@ -3,10 +3,10 @@
 
 import { useState, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import MLTFilterBar   from "@/components/mlt/MLTFilterBar";
-import MLTWorklistRow from "@/components/mlt/MLTWorklistRow";
+import MLTFilterBar     from "@/components/mlt/MLTFilterBar";
+import MLTWorklistRow   from "@/components/mlt/MLTWorklistRow";
 import InstrumentStatus from "@/components/mlt/InstrumentStatus";
-import Pagination     from "@/components/shared/Pagination";
+import Pagination       from "@/components/shared/Pagination";
 import {
     MOCK_MLT_ALL_WORKLIST,
     MOCK_INSTRUMENTS,
@@ -32,7 +32,7 @@ export default function MLTAllWorklistPage() {
     const [testType,    setTestType]    = useState("All Test Types");
     const [currentPage, setCurrentPage] = useState(1);
 
-    // ── Filter logic ────────────────────────────────────────────
+    // ── Filter logic ─────────────────────────────────────────────
     const filtered = useMemo(() => {
         return MOCK_MLT_ALL_WORKLIST.filter((s) => {
             const q = searchQuery.toLowerCase();
@@ -63,12 +63,12 @@ export default function MLTAllWorklistPage() {
     const handleDepartment = (d: string) => { setDepartment(d);  setCurrentPage(1); };
     const handleTestType   = (t: string) => { setTestType(t);    setCurrentPage(1); };
 
+    // ── View Testing — passes sampleId + view=true, no toast ─────
     const handleViewTesting = (id: string) => {
         const sample = MOCK_MLT_ALL_WORKLIST.find((s) => s.id === id);
-        toast.info("Opening testing details", {
-            description: `${sample?.sampleId} — ${sample?.testType}`,
-        });
-        router.push("/mlt/result-entry");
+        if (sample) {
+            router.push(`/mlt/result-entry?sampleId=${sample.sampleId}&view=true`);
+        }
     };
 
     return (

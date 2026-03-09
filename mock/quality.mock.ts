@@ -30,8 +30,8 @@ export interface QualitySample {
 }
 
 export const MOCK_QUALITY_SAMPLE: QualitySample = {
-    sampleId:       "77291034",
-    internalRef:    "JOUR-77291034-9",
+    sampleId:       "S-90348",
+    internalRef:    "JOUR-90348-9",
     patientName:    "Sandhya Rajakaruna",
     patientTitle:   "Mrs.",
     age:            64,
@@ -48,6 +48,67 @@ export const MOCK_QUALITY_SAMPLE: QualitySample = {
     elapsedMinutes: 22,
     timeWindow:     "60 min max",
 };
+
+export const MOCK_QUALITY_SAMPLES: QualitySample[] = [
+    MOCK_QUALITY_SAMPLE, // existing one — S-90348
+    {
+        sampleId:       "S-90232",
+        internalRef:    "JOUR-90232-4",
+        patientName:    "Mohamed Kamil",
+        patientTitle:   "Mr.",
+        age:            37,
+        gender:         "Male",
+        mrn:            "DH-38822",
+        location:       "OPD Clinic",
+        bed:            "Bay 03",
+        clinician:      "Dr. A. Perera",
+        clinicianDept:  "General Medicine",
+        testType:       "Full Blood Count",
+        testColor:      "bg-purple-500",
+        containerType:  "EDTA K3 (Purple Top)",
+        collectionTime: "Today, 10:43 AM",
+        elapsedMinutes: 10,
+        timeWindow:     "60 min max",
+    },
+    {
+        sampleId:       "S-90235",
+        internalRef:    "JOUR-90235-6",
+        patientName:    "Priya Rajan",
+        patientTitle:   "Ms.",
+        age:            29,
+        gender:         "Female",
+        mrn:            "DH-41002",
+        location:       "Ward 02",
+        bed:            "Bed 05-B",
+        clinician:      "Dr. N. Fernando",
+        clinicianDept:  "Endocrinology Dept.",
+        testType:       "Thyroid Panel (T3, T4)",
+        testColor:      "bg-yellow-400",
+        containerType:  "SST Gold Top",
+        collectionTime: "Today, 10:52 AM",
+        elapsedMinutes: 5,
+        timeWindow:     "60 min max",
+    },
+    {
+        sampleId:       "S-90241",
+        internalRef:    "JOUR-90241-2",
+        patientName:    "Kamala Jayasinghe",
+        patientTitle:   "Mrs.",
+        age:            61,
+        gender:         "Female",
+        mrn:            "DH-39105",
+        location:       "ICU",
+        bed:            "Bed 01-A",
+        clinician:      "Dr. R. Silva",
+        clinicianDept:  "Critical Care",
+        testType:       "Serum Electrolytes",
+        testColor:      "bg-green-500",
+        containerType:  "Heparin (Green Top)",
+        collectionTime: "Today, 11:05 AM",
+        elapsedMinutes: 3,
+        timeWindow:     "60 min max",
+    },
+];
 
 export const MOCK_VERIFICATION_CHECKS: VerificationCheck[] = [
     {

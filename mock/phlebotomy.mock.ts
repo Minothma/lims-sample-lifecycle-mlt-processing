@@ -53,8 +53,8 @@ export const MOCK_WORKLIST: Sample[] = [
 ];
 
 export const MOCK_DASHBOARD_STATS = {
-    pendingCollections: 24,
-    urgentSamples: 5,
+    pendingCollections: 2,
+    urgentSamples: 2,
     collectedToday: 142,
     rejections: 2,
 };

@@ -11,7 +11,7 @@ export interface MLTSample extends Sample {
 export const MOCK_MLT_WORKLIST: MLTSample[] = [
     {
         id:           "m1",
-        sampleId:     "LB-2023-0982",
+        sampleId:     "S-10100",
         orderId:      "ORD-2024-101",
         patient:      { id: "p1", pid: "DH-40281", name: "Mrs. Kumari Rathnayake", age: 40, gender: "F", wardRoom: "Ward 04" },
         testType:     "FBC & CRP",
@@ -26,7 +26,7 @@ export const MOCK_MLT_WORKLIST: MLTSample[] = [
     },
     {
         id:           "m2",
-        sampleId:     "LB-2023-1004",
+        sampleId:     "S-10101",
         orderId:      "ORD-2024-102",
         patient:      { id: "p2", pid: "DH-41082", name: "Mr. Chaminda Silva", age: 62, gender: "M", wardRoom: "ICU-02" },
         testType:     "Arterial Blood Gas",
@@ -41,7 +41,7 @@ export const MOCK_MLT_WORKLIST: MLTSample[] = [
     },
     {
         id:           "m3",
-        sampleId:     "LB-2023-0877",
+        sampleId:     "S-10102",
         orderId:      "ORD-2024-103",
         patient:      { id: "p3", pid: "DH-38901", name: "Ms. Ishara Perera", age: 28, gender: "F", wardRoom: "OPD" },
         testType:     "Lipid Profile",
@@ -56,7 +56,7 @@ export const MOCK_MLT_WORKLIST: MLTSample[] = [
     },
     {
         id:           "m4",
-        sampleId:     "LB-2023-0975",
+        sampleId:     "S-10103",
         orderId:      "ORD-2024-104",
         patient:      { id: "p4", pid: "DH-40012", name: "Master Rahul Naveen", age: 8, gender: "M", wardRoom: "Paediatrics" },
         testType:     "Blood Grouping",
@@ -71,7 +71,7 @@ export const MOCK_MLT_WORKLIST: MLTSample[] = [
     },
     {
         id:           "m5",
-        sampleId:     "LB-2023-0991",
+        sampleId:     "S-10104",
         orderId:      "ORD-2024-105",
         patient:      { id: "p5", pid: "DH-39821", name: "Mrs. Preethi Fernando", age: 35, gender: "F", wardRoom: "Ward 02" },
         testType:     "Thyroid Panel (T3, T4, TSH)",
@@ -89,7 +89,7 @@ export const MOCK_MLT_WORKLIST: MLTSample[] = [
 export const MOCK_MLT_ALL_WORKLIST: MLTSample[] = [
     {
         id:           "a1",
-        sampleId:     "LB-2023-0982",
+        sampleId:     "S-10100",
         orderId:      "ORD-2024-101",
         patient:      { id: "p1", pid: "DH-40281", name: "Mrs. Kumari Rathnayake", age: 40, gender: "F", wardRoom: "Ward 04" },
         testType:     "FBC & CRP",
@@ -104,7 +104,7 @@ export const MOCK_MLT_ALL_WORKLIST: MLTSample[] = [
     },
     {
         id:           "a2",
-        sampleId:     "LB-2023-1004",
+        sampleId:     "S-10101",
         orderId:      "ORD-2024-102",
         patient:      { id: "p2", pid: "DH-41082", name: "Mr. Chaminda Silva", age: 62, gender: "M", wardRoom: "ICU-02" },
         testType:     "Arterial Blood Gas",
@@ -119,7 +119,7 @@ export const MOCK_MLT_ALL_WORKLIST: MLTSample[] = [
     },
     {
         id:           "a3",
-        sampleId:     "LB-2023-0877",
+        sampleId:     "S-10102",
         orderId:      "ORD-2024-103",
         patient:      { id: "p3", pid: "DH-38901", name: "Ms. Ishara Perera", age: 28, gender: "F", wardRoom: "OPD" },
         testType:     "Lipid Profile",
@@ -134,7 +134,7 @@ export const MOCK_MLT_ALL_WORKLIST: MLTSample[] = [
     },
     {
         id:           "a4",
-        sampleId:     "LB-2023-0975",
+        sampleId:     "S-10103",
         orderId:      "ORD-2024-104",
         patient:      { id: "p4", pid: "DH-40012", name: "Master Rahul Naveen", age: 8, gender: "M", wardRoom: "Paediatrics" },
         testType:     "Blood Grouping",
@@ -149,7 +149,7 @@ export const MOCK_MLT_ALL_WORKLIST: MLTSample[] = [
     },
     {
         id:           "a5",
-        sampleId:     "LB-2023-0968",
+        sampleId:     "S-10105",
         orderId:      "ORD-2024-105",
         patient:      { id: "p5", pid: "DH-39201", name: "Mr. Sunil Shantha", age: 55, gender: "M", wardRoom: "Ward 12" },
         testType:     "HbA1c",
@@ -166,9 +166,7 @@ export const MOCK_MLT_ALL_WORKLIST: MLTSample[] = [
 
 export const MOCK_MLT_STATS = {
     rejectedTests:  42,
-    rejectedSince:  "+6 since 8am",
     pendingTests:   42,
-    pendingSince:   "+6 since 8am",
     criticalResults: 8,
     myDrafts:       12,
 };

@@ -11,6 +11,7 @@ import StatusBadge   from "@/components/shared/StatusBadge";
 import PriorityBadge from "@/components/shared/PriorityBadge";
 import Pagination    from "@/components/shared/Pagination";
 import { cn }        from "@/lib/utils";
+import { toast }     from "sonner";
 
 // ── Mock history data ──────────────────────────────────────────
 const MOCK_HISTORY = [
@@ -65,9 +66,9 @@ const STATUS_FILTERS = [
 ];
 
 export default function CollectionHistoryPage() {
-    const [searchQuery,    setSearchQuery]    = useState("");
-    const [statusFilter,   setStatusFilter]   = useState("All Status");
-    const [currentPage,    setCurrentPage]    = useState(1);
+    const [searchQuery,  setSearchQuery]  = useState("");
+    const [statusFilter, setStatusFilter] = useState("All Status");
+    const [currentPage,  setCurrentPage]  = useState(1);
 
     const filtered = useMemo(() => {
         return MOCK_HISTORY.filter((s) => {
@@ -98,6 +99,287 @@ export default function CollectionHistoryPage() {
         MOCK_HISTORY.reduce((sum, h) => sum + h.waitTime, 0) / MOCK_HISTORY.length
     );
 
+    // ── PDF Export ─────────────────────────────────────────────
+    const handleExportPDF = () => {
+        // 1. Build HTML table rows from filtered data
+        const tableRows = filtered.map((item) => `
+            <tr>
+                <td class="sample-id">${item.sampleId}</td>
+                <td>
+                    <div class="patient-name">${item.patientName}</div>
+                    <div class="patient-pid">${item.pid}</div>
+                </td>
+                <td>${item.testCodes.join(", ")}</td>
+                <td>
+                    <span class="badge badge-${item.priority.toLowerCase()}">
+                        ${item.priority}
+                    </span>
+                </td>
+                <td>
+                    <span class="badge badge-${item.status.toLowerCase()}">
+                        ${item.status.replace("_", " ")}
+                    </span>
+                </td>
+                <td>
+                    <div>${item.collectedAt}</div>
+                    <div class="patient-pid">${item.collectedBy}</div>
+                </td>
+                <td class="wait-${item.waitTime > 20 ? "red" : item.waitTime > 10 ? "amber" : "green"}">
+                    ${item.waitTime} min
+                </td>
+            </tr>
+        `).join("");
+
+        // 2. Build full HTML page for printing
+        const printContent = `
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Collection History — ${new Date().toLocaleDateString()}</title>
+                <style>
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+                    body {
+                        font-family: Arial, sans-serif;
+                        font-size: 12px;
+                        color: #111827;
+                        padding: 32px;
+                    }
+
+                    /* ── Header ── */
+                    .header {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: flex-start;
+                        margin-bottom: 24px;
+                        padding-bottom: 16px;
+                        border-bottom: 2px solid #2563EB;
+                    }
+                    .header-left h1 {
+                        font-size: 20px;
+                        font-weight: bold;
+                        color: #2563EB;
+                    }
+                    .header-left p {
+                        font-size: 11px;
+                        color: #6B7280;
+                        margin-top: 4px;
+                    }
+                    .header-right {
+                        text-align: right;
+                        font-size: 11px;
+                        color: #6B7280;
+                    }
+                    .header-right .hospital {
+                        font-size: 13px;
+                        font-weight: bold;
+                        color: #111827;
+                    }
+
+                    /* ── Summary Cards ── */
+                    .summary {
+                        display: flex;
+                        gap: 12px;
+                        margin-bottom: 20px;
+                    }
+                    .summary-card {
+                        flex: 1;
+                        padding: 10px 14px;
+                        border-radius: 8px;
+                        border: 1px solid #E5E7EB;
+                        text-align: center;
+                    }
+                    .summary-card .value {
+                        font-size: 22px;
+                        font-weight: bold;
+                    }
+                    .summary-card .label {
+                        font-size: 10px;
+                        color: #6B7280;
+                        margin-top: 2px;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                    }
+                    .card-green .value  { color: #16A34A; }
+                    .card-red .value    { color: #DC2626; }
+                    .card-blue .value   { color: #2563EB; }
+                    .card-purple .value { color: #7C3AED; }
+
+                    /* ── Table ── */
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin-top: 4px;
+                    }
+                    thead tr {
+                        background-color: #2563EB;
+                        color: white;
+                    }
+                    thead th {
+                        padding: 10px 12px;
+                        text-align: left;
+                        font-size: 10px;
+                        font-weight: 600;
+                        text-transform: uppercase;
+                        letter-spacing: 0.05em;
+                    }
+                    tbody tr {
+                        border-bottom: 1px solid #F3F4F6;
+                    }
+                    tbody tr:nth-child(even) {
+                        background-color: #F9FAFB;
+                    }
+                    td {
+                        padding: 9px 12px;
+                        vertical-align: middle;
+                    }
+
+                    /* ── Cell styles ── */
+                    .sample-id {
+                        font-weight: bold;
+                        color: #2563EB;
+                        font-family: monospace;
+                        font-size: 12px;
+                    }
+                    .patient-name { font-weight: 600; }
+                    .patient-pid  { font-size: 10px; color: #9CA3AF; margin-top: 2px; }
+
+                    /* ── Badges ── */
+                    .badge {
+                        display: inline-block;
+                        padding: 2px 8px;
+                        border-radius: 4px;
+                        font-size: 10px;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        letter-spacing: 0.04em;
+                    }
+                    .badge-urgent     { background: #FEE2E2; color: #991B1B; }
+                    .badge-normal     { background: #F3F4F6; color: #374151; }
+                    .badge-stat       { background: #FEF3C7; color: #92400E; }
+                    .badge-collected  { background: #DCFCE7; color: #166534; }
+                    .badge-rejected   { background: #FEE2E2; color: #991B1B; }
+                    .badge-in_transit { background: #DBEAFE; color: #1E40AF; }
+
+                    /* ── Wait time colors ── */
+                    .wait-red   { color: #DC2626; font-weight: 700; }
+                    .wait-amber { color: #D97706; font-weight: 700; }
+                    .wait-green { color: #16A34A; font-weight: 700; }
+
+                    /* ── Footer ── */
+                    .footer {
+                        margin-top: 24px;
+                        padding-top: 12px;
+                        border-top: 1px solid #E5E7EB;
+                        display: flex;
+                        justify-content: space-between;
+                        font-size: 10px;
+                        color: #9CA3AF;
+                    }
+
+                    /* ── Print settings ── */
+                    @media print {
+                        body { padding: 20px; }
+                        @page { margin: 1cm; size: A4 landscape; }
+                    }
+                </style>
+            </head>
+            <body>
+
+                <!-- Header -->
+                <div class="header">
+                    <div class="header-left">
+                        <h1>Collection History Report</h1>
+                        <p>Phlebotomy Station — Sample Collection Log</p>
+                    </div>
+                    <div class="header-right">
+                        <div class="hospital">DURDANS HOSPITAL</div>
+                        <div>Laboratory Information Management System</div>
+                        <div style="margin-top:6px;">
+                            Generated: ${new Date().toLocaleString()}
+                        </div>
+                        <div>Operator: Dr. Aritha Perera</div>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary">
+                    <div class="summary-card card-green">
+                        <div class="value">
+                            ${filtered.filter(h => h.status === "COLLECTED").length}
+                        </div>
+                        <div class="label">Collected</div>
+                    </div>
+                    <div class="summary-card card-red">
+                        <div class="value">
+                            ${filtered.filter(h => h.status === "REJECTED").length}
+                        </div>
+                        <div class="label">Rejected</div>
+                    </div>
+                    <div class="summary-card card-blue">
+                        <div class="value">
+                            ${Math.round(filtered.reduce((s, h) => s + h.waitTime, 0) / (filtered.length || 1))}m
+                        </div>
+                        <div class="label">Avg Wait</div>
+                    </div>
+                    <div class="summary-card card-purple">
+                        <div class="value">${filtered.length}</div>
+                        <div class="label">Total Records</div>
+                    </div>
+                </div>
+
+                <!-- Table -->
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sample ID</th>
+                            <th>Patient</th>
+                            <th>Tests</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Collected At</th>
+                            <th>Wait Time</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRows}
+                    </tbody>
+                </table>
+
+                <!-- Footer -->
+                <div class="footer">
+                    <span>Durdans Hospital LIMS — Confidential Medical Record</span>
+                    <span>Total: ${filtered.length} records | Date: ${new Date().toLocaleDateString()}</span>
+                </div>
+
+            </body>
+            </html>
+        `;
+
+        // 3. Open print window and trigger Save as PDF dialog
+        const printWindow = window.open("", "_blank", "width=1000,height=700");
+        if (!printWindow) {
+            toast.error("Popup blocked", {
+                description: "Please allow popups for this site and try again.",
+            });
+            return;
+        }
+
+        printWindow.document.write(printContent);
+        printWindow.document.close();
+
+        // Small delay so styles load before print dialog opens
+        printWindow.onload = () => {
+            printWindow.focus();
+            printWindow.print();
+            printWindow.close();
+        };
+
+        toast.success("PDF report ready", {
+            description: `${filtered.length} records — choose 'Save as PDF' in the print dialog`,
+        });
+    };
+
     return (
         <div className="space-y-5">
 
@@ -109,11 +391,16 @@ export default function CollectionHistoryPage() {
                         Today's completed sample collections by this station
                     </p>
                 </div>
-                <button className="flex items-center gap-1.5 px-3 py-2 border border-gray-200
-                           rounded-lg bg-white text-sm text-gray-600
-                           hover:bg-gray-50 transition-all">
+
+                {/* ✅ Function name: handleExportPDF | Label: Export PDF */}
+                <button
+                    onClick={handleExportPDF}
+                    className="flex items-center gap-1.5 px-3 py-2 border border-gray-200
+                               rounded-lg bg-white text-sm text-gray-600
+                               hover:bg-gray-50 active:scale-95 transition-all"
+                >
                     <Download className="w-3.5 h-3.5" />
-                    Export CSV
+                    Export PDF
                 </button>
             </div>
 
@@ -152,7 +439,7 @@ export default function CollectionHistoryPage() {
                 <div className="flex items-center gap-3 p-4 border-b border-gray-100 flex-wrap">
                     <div className="relative flex-1 min-w-[240px] max-w-sm">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2
-                               w-4 h-4 text-gray-400" />
+                                           w-4 h-4 text-gray-400" />
                         <input
                             type="text"
                             value={searchQuery}
@@ -162,8 +449,8 @@ export default function CollectionHistoryPage() {
                             }}
                             placeholder="Search patient, sample ID..."
                             className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200
-                         rounded-lg focus:outline-none focus:ring-2
-                         focus:ring-blue-500 transition-all"
+                                       rounded-lg focus:outline-none focus:ring-2
+                                       focus:ring-blue-500 transition-all"
                         />
                     </div>
 
@@ -174,8 +461,8 @@ export default function CollectionHistoryPage() {
                             setCurrentPage(1);
                         }}
                         className="px-3 py-2 text-sm border border-gray-200 rounded-lg
-                       bg-white text-gray-700 focus:outline-none
-                       focus:ring-2 focus:ring-blue-500 transition-all"
+                                   bg-white text-gray-700 focus:outline-none
+                                   focus:ring-2 focus:ring-blue-500 transition-all"
                     >
                         {STATUS_FILTERS.map((s) => (
                             <option key={s} value={s}>{s}</option>
@@ -183,11 +470,16 @@ export default function CollectionHistoryPage() {
                     </select>
 
                     <button className="flex items-center gap-1.5 px-3 py-2 border
-                             border-gray-200 rounded-lg bg-white text-sm
-                             text-gray-600 hover:bg-gray-50 transition-all">
+                                       border-gray-200 rounded-lg bg-white text-sm
+                                       text-gray-600 hover:bg-gray-50 transition-all">
                         <Filter className="w-3.5 h-3.5" />
                         Filter by Date
                     </button>
+
+                    {/* Record count */}
+                    <span className="text-xs text-gray-400 ml-auto">
+                        {filtered.length} record{filtered.length !== 1 ? "s" : ""} found
+                    </span>
                 </div>
 
                 {/* Table */}
@@ -203,7 +495,7 @@ export default function CollectionHistoryPage() {
                                 <th
                                     key={col}
                                     className="px-4 py-2.5 text-left text-[11px] font-semibold
-                               uppercase tracking-wider text-gray-500"
+                                                   uppercase tracking-wider text-gray-500"
                                 >
                                     {col}
                                 </th>
@@ -227,9 +519,9 @@ export default function CollectionHistoryPage() {
                                 >
                                     {/* Sample ID */}
                                     <td className="px-4 py-3">
-                      <span className="text-sm font-bold text-blue-600 font-mono">
-                        {item.sampleId}
-                      </span>
+                                            <span className="text-sm font-bold text-blue-600 font-mono">
+                                                {item.sampleId}
+                                            </span>
                                     </td>
 
                                     {/* Patient */}
@@ -247,10 +539,10 @@ export default function CollectionHistoryPage() {
                                                 <span
                                                     key={code}
                                                     className="px-1.5 py-0.5 bg-gray-100 text-gray-600
-                                       text-[11px] font-medium rounded"
+                                                                   text-[11px] font-medium rounded"
                                                 >
-                            {code}
-                          </span>
+                                                        {code}
+                                                    </span>
                                             ))}
                                         </div>
                                     </td>
@@ -273,16 +565,16 @@ export default function CollectionHistoryPage() {
 
                                     {/* Wait Time */}
                                     <td className="px-4 py-3">
-                      <span className={cn(
-                          "text-sm font-semibold",
-                          item.waitTime > 20
-                              ? "text-red-600"
-                              : item.waitTime > 10
-                                  ? "text-amber-600"
-                                  : "text-green-600"
-                      )}>
-                        {item.waitTime} min
-                      </span>
+                                            <span className={cn(
+                                                "text-sm font-semibold",
+                                                item.waitTime > 20
+                                                    ? "text-red-600"
+                                                    : item.waitTime > 10
+                                                        ? "text-amber-600"
+                                                        : "text-green-600"
+                                            )}>
+                                                {item.waitTime} min
+                                            </span>
                                     </td>
                                 </tr>
                             ))

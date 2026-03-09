@@ -8,41 +8,58 @@ import { toast } from "sonner";
 import SampleInfoPanel       from "@/components/reception/SampleInfoPanel";
 import VerificationChecklist from "@/components/reception/VerificationChecklist";
 import ReceptionRejectModal  from "@/components/reception/ReceptionRejectModal";
-import { MOCK_QUALITY_SAMPLE, MOCK_VERIFICATION_CHECKS } from "@/mock/quality.mock";
-import type { VerificationCheck } from "@/mock/quality.mock";
+import {
+    MOCK_QUALITY_SAMPLES,
+    MOCK_VERIFICATION_CHECKS,
+} from "@/mock/quality.mock";
+import type { VerificationCheck, QualitySample } from "@/mock/quality.mock";
 import type { Sample } from "@/types/sample.types";
 
-// Dummy sample for reject modal
-const DUMMY_SAMPLE: Sample = {
-    id:        "q1",
-    sampleId:  "77291034",
-    orderId:   "ORD-2024-099",
-    patient:   {
-        id:     "p9",
-        pid:    "DH-882-0034",
-        name:   "Sandhya Rajakaruna",
-        age:    64,
-        gender: "F",
-    },
-    testType:  "Full Blood Count (FBC) + ESR",
-    testCodes: ["FBC", "ESR"],
-    priority:  "NORMAL",
-    status:    "QUALITY_CHECK",
-    tubeTypes: ["EDTA_PURPLE"],
-};
-
 export default function QualityVerificationPage() {
-    const [checks,       setChecks]       = useState<VerificationCheck[]>(MOCK_VERIFICATION_CHECKS);
-    const [notes,        setNotes]        = useState("");
-    const [showReject,   setShowReject]   = useState(false);
-    const [scanInput,    setScanInput]    = useState("");
-    const [accepting,    setAccepting]    = useState(false);
+    const [currentSample, setCurrentSample] = useState<QualitySample>(MOCK_QUALITY_SAMPLES[0]);
+    const [checks,        setChecks]        = useState<VerificationCheck[]>(MOCK_VERIFICATION_CHECKS);
+    const [notes,         setNotes]         = useState("");
+    const [showReject,    setShowReject]     = useState(false);
+    const [scanInput,     setScanInput]      = useState("");
+    const [accepting,     setAccepting]      = useState(false);
+    const [notFound,      setNotFound]       = useState(false);
 
     const allRequiredChecked = checks
         .filter((c) => c.required)
         .every((c) => c.checked);
 
     const checkedCount = checks.filter((c) => c.checked).length;
+
+    // ── Reset checklist when new sample loads ──────────────────
+    const resetChecklist = () => {
+        setChecks(MOCK_VERIFICATION_CHECKS.map((c) => ({ ...c, checked: false })));
+        setNotes("");
+    };
+
+    // ── Scan / Search handler ──────────────────────────────────
+    const handleScan = (value: string) => {
+        const query = value.trim().toUpperCase();
+        if (!query) return;
+
+        const found = MOCK_QUALITY_SAMPLES.find(
+            (s) => s.sampleId.toUpperCase() === query
+        );
+
+        if (found) {
+            setCurrentSample(found);
+            resetChecklist();
+            setScanInput("");
+            setNotFound(false);
+            toast.success(`Sample loaded`, {
+                description: `${found.sampleId} — ${found.patientName}`,
+            });
+        } else {
+            setNotFound(true);
+            toast.error(`Sample not found`, {
+                description: `No sample matches "${value.trim()}"`,
+            });
+        }
+    };
 
     const handleCheckChange = (id: string, checked: boolean) => {
         setChecks((prev) =>
@@ -58,9 +75,28 @@ export default function QualityVerificationPage() {
         setAccepting(true);
         await new Promise((r) => setTimeout(r, 900));
         toast.success("Sample accepted & queued for analysis", {
-            description: `Sample ${MOCK_QUALITY_SAMPLE.sampleId} — ${MOCK_QUALITY_SAMPLE.testType}`,
+            description: `Sample ${currentSample.sampleId} — ${currentSample.testType}`,
         });
         setAccepting(false);
+    };
+
+    // Dummy sample for reject modal — built from currentSample
+    const dummySample: Sample = {
+        id:        "q1",
+        sampleId:  currentSample.sampleId,
+        orderId:   currentSample.internalRef,
+        patient:   {
+            id:     "p1",
+            pid:    currentSample.mrn,
+            name:   currentSample.patientName,
+            age:    currentSample.age,
+            gender: currentSample.gender === "Female" ? "F" : "M",
+        },
+        testType:  currentSample.testType,
+        testCodes: [],
+        priority:  "NORMAL",
+        status:    "QUALITY_CHECK",
+        tubeTypes: [],
     };
 
     return (
@@ -82,28 +118,56 @@ export default function QualityVerificationPage() {
             </div>
 
             {/* ── Scan Bar ── */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4">
+            <div className={cn(
+                "bg-white rounded-xl border shadow-sm p-4 transition-all",
+                notFound ? "border-red-300 bg-red-50" : "border-gray-200"
+            )}>
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-blue-50 rounded-lg">
-                        <ScanLine className="w-5 h-5 text-blue-500" />
+                    <div className={cn(
+                        "p-2 rounded-lg",
+                        notFound ? "bg-red-100" : "bg-blue-50"
+                    )}>
+                        <ScanLine className={cn(
+                            "w-5 h-5",
+                            notFound ? "text-red-500" : "text-blue-500"
+                        )} />
                     </div>
                     <input
                         type="text"
                         value={scanInput}
-                        onChange={(e) => setScanInput(e.target.value)}
-                        placeholder="Scan Sample Barcode or Search ID..."
-                        className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent
-                       focus:outline-none"
+                        onChange={(e) => {
+                            setScanInput(e.target.value);
+                            setNotFound(false);
+                        }}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter") handleScan(scanInput);
+                        }}
+                        placeholder="Scan Sample Barcode or type Sample ID and press Enter..."
+                        className="flex-1 text-sm text-gray-700 placeholder-gray-400
+                       bg-transparent focus:outline-none"
                     />
                     {scanInput && (
-                        <button
-                            onClick={() => setScanInput("")}
-                            className="text-xs text-blue-600 hover:underline font-medium"
-                        >
-                            Clear
-                        </button>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => handleScan(scanInput)}
+                                className="text-xs bg-blue-600 text-white px-3 py-1.5
+                                   rounded-md hover:bg-blue-700 font-medium transition-all"
+                            >
+                                Search
+                            </button>
+                            <button
+                                onClick={() => { setScanInput(""); setNotFound(false); }}
+                                className="text-xs text-gray-500 hover:text-gray-800 font-medium"
+                            >
+                                Clear
+                            </button>
+                        </div>
                     )}
                 </div>
+                {/* Hint text */}
+                <p className="text-[11px] text-gray-400 mt-2 ml-11">
+                    Try: S-90348 · S-90232 · S-90235 · S-90241
+                </p>
             </div>
 
             {/* ── Main Split Panel ── */}
@@ -111,7 +175,7 @@ export default function QualityVerificationPage() {
 
                 {/* ── Left: Sample Info ── */}
                 <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                    <SampleInfoPanel sample={MOCK_QUALITY_SAMPLE} />
+                    <SampleInfoPanel sample={currentSample} />
                 </div>
 
                 {/* ── Right: Verification Checklist ── */}
@@ -121,21 +185,21 @@ export default function QualityVerificationPage() {
                         onChange={handleCheckChange}
                         notes={notes}
                         onNotesChange={setNotes}
-                        elapsedMinutes={MOCK_QUALITY_SAMPLE.elapsedMinutes}
+                        elapsedMinutes={currentSample.elapsedMinutes}
                     />
 
                     {/* Progress indicator */}
                     <div className="mt-4 bg-gray-50 rounded-lg px-4 py-2.5">
                         <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-gray-500">
-                {checkedCount} of {checks.length} checks completed
-              </span>
+                            <span className="text-xs text-gray-500">
+                                {checkedCount} of {checks.length} checks completed
+                            </span>
                             <span className={cn(
                                 "text-xs font-bold",
                                 allRequiredChecked ? "text-green-600" : "text-amber-600"
                             )}>
-                {allRequiredChecked ? "✓ Ready to accept" : "Complete required checks"}
-              </span>
+                                {allRequiredChecked ? "✓ Ready to accept" : "Complete required checks"}
+                            </span>
                         </div>
                         <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
                             <div
@@ -163,7 +227,6 @@ export default function QualityVerificationPage() {
                 </div>
 
                 <div className="flex items-center gap-3">
-                    {/* Reject button */}
                     <button
                         onClick={() => setShowReject(true)}
                         className="flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm
@@ -174,7 +237,6 @@ export default function QualityVerificationPage() {
                         Reject Sample
                     </button>
 
-                    {/* Accept button */}
                     <button
                         onClick={handleAccept}
                         disabled={!allRequiredChecked || accepting}
@@ -196,7 +258,7 @@ export default function QualityVerificationPage() {
             <ReceptionRejectModal
                 open={showReject}
                 onClose={() => setShowReject(false)}
-                sample={DUMMY_SAMPLE}
+                sample={dummySample}
             />
 
         </div>

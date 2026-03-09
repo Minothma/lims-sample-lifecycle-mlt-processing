@@ -18,17 +18,16 @@ interface MLTFilterBarProps {
 }
 
 export default function MLTFilterBar({
-                                         searchQuery,
-                                         department,
-                                         testType,
-                                         onSearch,
-                                         onDepartment,
-                                         onTestType,
-                                         mode,
-                                         onPrintBatch,
-                                         onNewEntry,
-                                         onPrint,
+                                         searchQuery, department, testType,
+                                         onSearch, onDepartment, onTestType,
+                                         mode, onPrintBatch, onNewEntry, onPrint,
                                      }: MLTFilterBarProps) {
+
+    // ── Dynamic date ──────────────────────────────────────────────
+    const todayLabel = new Date().toLocaleDateString("en-GB", {
+        day: "numeric", month: "short",
+    });
+
     return (
         <div className="flex items-center justify-between gap-3 flex-wrap">
 
@@ -50,7 +49,6 @@ export default function MLTFilterBar({
             {/* ── Filters ── */}
             <div className="flex items-center gap-2 flex-wrap">
 
-                {/* Department */}
                 <select
                     value={department}
                     onChange={(e) => onDepartment(e.target.value)}
@@ -63,7 +61,6 @@ export default function MLTFilterBar({
                     ))}
                 </select>
 
-                {/* Test Type */}
                 <select
                     value={testType}
                     onChange={(e) => onTestType(e.target.value)}
@@ -76,19 +73,17 @@ export default function MLTFilterBar({
                     ))}
                 </select>
 
-                {/* Date badge */}
+                {/* ✅ Dynamic date */}
                 <div className="flex items-center gap-1.5 px-3 py-2 border border-gray-200
                         rounded-lg bg-white text-sm text-gray-600">
-                    📅 Today, 24 Oct
+                    📅 Today, {todayLabel}
                 </div>
 
-                {/* Sort */}
                 <button className="p-2 border border-gray-200 rounded-lg bg-white
                            text-gray-500 hover:text-gray-700 hover:bg-gray-50 transition-all">
                     <SlidersHorizontal className="w-4 h-4" />
                 </button>
 
-                {/* Mode-specific buttons */}
                 {mode === "worklist" && (
                     <>
                         <button
